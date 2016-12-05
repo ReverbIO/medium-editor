@@ -877,18 +877,19 @@ MediumEditor.extensions = {};
                 if (Util.isMediumEditorElement(toReplace) && !toReplace.firstChild) {
                     range.selectNode(toReplace.appendChild(doc.createTextNode('')));
                 }
+
                 //else if ((toReplace.nodeType === 3 && range.startOffset === 0 && range.endOffset === toReplace.nodeValue.length) ||
                 //    (toReplace.nodeType !== 3 && toReplace.innerHTML === range.toString())) {
-                    // Ensure range covers maximum amount of nodes as possible
-                    // By moving up the DOM and selecting ancestors whose only child is the range
-                    //while (!Util.isMediumEditorElement(toReplace) &&
-                    //toReplace.parentNode &&
-                    //toReplace.parentNode.childNodes.length === 1 && !Util.isMediumEditorElement(toReplace.parentNode)) {
-                    //    toReplace = toReplace.parentNode;
-                    //    console.log('VISITING: ', toReplace);
-                    //}
-
-                    //range.selectNode(toReplace);
+                //     //Ensure range covers maximum amount of nodes as possible
+                //     //By moving up the DOM and selecting ancestors whose only child is the range
+                //    while (!Util.isMediumEditorElement(toReplace) &&
+                //    toReplace.parentNode &&
+                //    toReplace.parentNode.childNodes.length === 1 && !Util.isMediumEditorElement(toReplace.parentNode)) {
+                //        toReplace = toReplace.parentNode;
+                //        console.log('VISITING: ', toReplace);
+                //    }
+                //
+                //    range.selectNode(toReplace);
                 //}
 
                 range.deleteContents();
@@ -5316,7 +5317,7 @@ MediumEditor.extensions = {};
                 if (paragraphs.length > 1) {
                     for (p = 0; p < paragraphs.length; p += 1) {
                         if (paragraphs[p] !== '') {
-                            html += '<p>' + MediumEditor.util.htmlEntities(paragraphs[p]) + '</p>';
+                            html += '<div>' + MediumEditor.util.htmlEntities(paragraphs[p]) + '</div>';
                         }
                     }
                 } else {

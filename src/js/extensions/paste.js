@@ -210,7 +210,8 @@
                 if (paragraphs.length > 1) {
                     for (p = 0; p < paragraphs.length; p += 1) {
                         if (paragraphs[p] !== '') {
-                            html += '<p>' + MediumEditor.util.htmlEntities(paragraphs[p]) + '</p>';
+                            // [12.4.16] changed to p -> div
+                            html += '<div>' + MediumEditor.util.htmlEntities(paragraphs[p]) + '</div>';
                         }
                     }
                 } else {
