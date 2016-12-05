@@ -191,7 +191,6 @@
 
             if (pastedHTML || pastedPlain) {
                 event.preventDefault();
-
                 this.doPaste(pastedHTML, pastedPlain, editable);
             }
         },
@@ -220,6 +219,7 @@
             } else {
                 html = MediumEditor.util.htmlEntities(pastedPlain);
             }
+
             MediumEditor.util.insertHTMLCommand(this.document, html);
         },
 

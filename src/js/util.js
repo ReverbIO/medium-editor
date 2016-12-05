@@ -3,7 +3,7 @@
 (function (window) {
     'use strict';
 
-    function copyInto(overwrite, dest) {
+    function copyInto (overwrite, dest) {
         var prop,
             sources = Array.prototype.slice.call(arguments, 2);
         dest = dest || {};
@@ -32,7 +32,8 @@
             testText = document.createTextNode(' ');
         testParent.appendChild(testText);
         nodeContainsWorksWithTextNodes = testParent.contains(testText);
-    } catch (exc) {}
+    } catch (exc) {
+    }
 
     var Util = {
 
@@ -118,12 +119,12 @@
 
         emptyElementNames: ['br', 'col', 'colgroup', 'hr', 'img', 'input', 'source', 'wbr'],
 
-        extend: function extend(/* dest, source1, source2, ...*/) {
+        extend: function extend (/* dest, source1, source2, ...*/) {
             var args = [true].concat(Array.prototype.slice.call(arguments));
             return copyInto.apply(this, args);
         },
 
-        defaults: function defaults(/*dest, source1, source2, ...*/) {
+        defaults: function defaults (/*dest, source1, source2, ...*/) {
             var args = [false].concat(Array.prototype.slice.call(arguments));
             return copyInto.apply(this, args);
         },
@@ -224,19 +225,19 @@
             var textIndexOfEndOfFarthestNode,
                 endSplitPoint;
             textIndexOfEndOfFarthestNode = currentTextIndex + (newNode || currentNode).nodeValue.length +
-                    (newNode ? currentNode.nodeValue.length : 0) -
-                    1;
+                (newNode ? currentNode.nodeValue.length : 0) -
+                1;
             endSplitPoint = (newNode || currentNode).nodeValue.length -
-                    (textIndexOfEndOfFarthestNode + 1 - matchEndIndex);
+                (textIndexOfEndOfFarthestNode + 1 - matchEndIndex);
             if (textIndexOfEndOfFarthestNode >= matchEndIndex &&
-                    currentTextIndex !== textIndexOfEndOfFarthestNode &&
-                    endSplitPoint !== 0) {
+                currentTextIndex !== textIndexOfEndOfFarthestNode &&
+                endSplitPoint !== 0) {
                 (newNode || currentNode).splitText(endSplitPoint);
             }
         },
 
         /*
-        * Take an element, and break up all of its text content into unique pieces such that:
+         * Take an element, and break up all of its text content into unique pieces such that:
          * 1) All text content of the elements are in separate blocks. No piece of text content should span
          *    across multiple blocks. This means no element return by this function should have
          *    any blocks as children.
@@ -298,7 +299,7 @@
         //  - A descendant of a sibling element
         //  - A sibling text node of an ancestor
         //  - A descendant of a sibling element of an ancestor
-        findAdjacentTextNodeWithContent: function findAdjacentTextNodeWithContent(rootNode, targetNode, ownerDocument) {
+        findAdjacentTextNodeWithContent: function findAdjacentTextNodeWithContent (rootNode, targetNode, ownerDocument) {
             var pastTarget = false,
                 nextNode,
                 nodeIterator = ownerDocument.createNodeIterator(rootNode, NodeFilter.SHOW_TEXT, null, false);
@@ -336,7 +337,7 @@
             return previousSibling;
         },
 
-        isDescendant: function isDescendant(parent, child, checkEquality) {
+        isDescendant: function isDescendant (parent, child, checkEquality) {
             if (!parent || !child) {
                 return false;
             }
@@ -361,7 +362,7 @@
         },
 
         // https://github.com/jashkenas/underscore
-        isElement: function isElement(obj) {
+        isElement: function isElement (obj) {
             return !!(obj && obj.nodeType === 1);
         },
 
@@ -450,13 +451,17 @@
              * There are likely other bugs, these are just the ones we found so far.
              * For now, let's just use the same fallback we did for IE
              */
-            if (!MediumEditor.util.isEdge && doc.queryCommandSupported('insertHTML')) {
-                try {
-                    return doc.execCommand.apply(doc, ecArgs);
-                } catch (ignore) {}
-            }
+
+            // [12.5.16] We want more fine grained control than this shit.
+            // What is commented out below is basically why we forked the project.
+            //if (!MediumEditor.util.isEdge && doc.queryCommandSupported('insertHTML')) {
+            //    try {
+            //        return doc.execCommand.apply(doc, ecArgs);
+            //    } catch (ignore) {}
+            //}
 
             selection = doc.getSelection();
+
             if (selection.rangeCount) {
                 range = selection.getRangeAt(0);
                 toReplace = range.commonAncestorContainer;
@@ -467,13 +472,12 @@
                 if (Util.isMediumEditorElement(toReplace) && !toReplace.firstChild) {
                     range.selectNode(toReplace.appendChild(doc.createTextNode('')));
                 } else if ((toReplace.nodeType === 3 && range.startOffset === 0 && range.endOffset === toReplace.nodeValue.length) ||
-                        (toReplace.nodeType !== 3 && toReplace.innerHTML === range.toString())) {
+                    (toReplace.nodeType !== 3 && toReplace.innerHTML === range.toString())) {
                     // Ensure range covers maximum amount of nodes as possible
                     // By moving up the DOM and selecting ancestors whose only child is the range
                     while (!Util.isMediumEditorElement(toReplace) &&
-                            toReplace.parentNode &&
-                            toReplace.parentNode.childNodes.length === 1 &&
-                            !Util.isMediumEditorElement(toReplace.parentNode)) {
+                    toReplace.parentNode &&
+                    toReplace.parentNode.childNodes.length === 1 && !Util.isMediumEditorElement(toReplace.parentNode)) {
                         toReplace = toReplace.parentNode;
                     }
                     range.selectNode(toReplace);
@@ -518,8 +522,8 @@
                     childNodes = Array.prototype.slice.call(blockContainer.childNodes);
                     // Check if the blockquote has a block element as a child (nested blocks)
                     if (childNodes.some(function (childNode) {
-                        return Util.isBlockContainer(childNode);
-                    })) {
+                            return Util.isBlockContainer(childNode);
+                        })) {
                         // FF handles blockquote differently on formatBlock
                         // allowing nesting, we need to use outdent
                         // https://developer.mozilla.org/en-US/docs/Rich-Text_Editing_in_Mozilla
@@ -559,8 +563,8 @@
                     childNodes = Array.prototype.slice.call(blockContainer.childNodes);
                     // If there are some non-block elements we need to wrap everything in a <p> before we outdent
                     if (childNodes.some(function (childNode) {
-                        return !Util.isBlockContainer(childNode);
-                    })) {
+                            return !Util.isBlockContainer(childNode);
+                        })) {
                         doc.execCommand('formatBlock', false, tagName);
                     }
                     return doc.execCommand('outdent', false, tagName);
@@ -701,7 +705,7 @@
          *  the <div>' would be returned as an element not appended to the DOM, and the <div>
          *  would remain in place where it was
          *
-        */
+         */
         splitOffDOMTree: function (rootNode, leafNode, splitLeft) {
             var splitOnNode = leafNode,
                 createdNode = null,
@@ -1060,7 +1064,7 @@
         },
 
         guid: function () {
-            function _s4() {
+            function _s4 () {
                 return Math
                     .floor((1 + Math.random()) * 0x10000)
                     .toString(16)
