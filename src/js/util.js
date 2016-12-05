@@ -451,7 +451,6 @@
              * There are likely other bugs, these are just the ones we found so far.
              * For now, let's just use the same fallback we did for IE
              */
-
             // [12.5.16] We want more fine grained control than this shit.
             // What is commented out below is basically why we forked the project.
             //if (!MediumEditor.util.isEdge && doc.queryCommandSupported('insertHTML')) {
@@ -471,17 +470,21 @@
                 // and select it so that we don't delete the editor element
                 if (Util.isMediumEditorElement(toReplace) && !toReplace.firstChild) {
                     range.selectNode(toReplace.appendChild(doc.createTextNode('')));
-                } else if ((toReplace.nodeType === 3 && range.startOffset === 0 && range.endOffset === toReplace.nodeValue.length) ||
-                    (toReplace.nodeType !== 3 && toReplace.innerHTML === range.toString())) {
+                }
+                //else if ((toReplace.nodeType === 3 && range.startOffset === 0 && range.endOffset === toReplace.nodeValue.length) ||
+                //    (toReplace.nodeType !== 3 && toReplace.innerHTML === range.toString())) {
                     // Ensure range covers maximum amount of nodes as possible
                     // By moving up the DOM and selecting ancestors whose only child is the range
-                    while (!Util.isMediumEditorElement(toReplace) &&
-                    toReplace.parentNode &&
-                    toReplace.parentNode.childNodes.length === 1 && !Util.isMediumEditorElement(toReplace.parentNode)) {
-                        toReplace = toReplace.parentNode;
-                    }
-                    range.selectNode(toReplace);
-                }
+                    //while (!Util.isMediumEditorElement(toReplace) &&
+                    //toReplace.parentNode &&
+                    //toReplace.parentNode.childNodes.length === 1 && !Util.isMediumEditorElement(toReplace.parentNode)) {
+                    //    toReplace = toReplace.parentNode;
+                    //    console.log('VISITING: ', toReplace);
+                    //}
+
+                    //range.selectNode(toReplace);
+                //}
+
                 range.deleteContents();
 
                 el = doc.createElement('div');
