@@ -53,8 +53,8 @@
 
             // Newlines between paragraphs in html have no syntactic value,
             // but then have a tendency to accidentally become additional paragraphs down the line
-            [new RegExp(/<\/p>\n+/gi), '</p>'],
-            [new RegExp(/\n+<p/gi), '<p'],
+            [new RegExp(/<\/p>\n+/gi), '</div>'], // was 'p' 12.4.16
+            [new RegExp(/\n+<p/gi), '<div'], // was 'p' 12.4.16
 
             // Microsoft Word makes these odd tags, like <o:p></o:p>
             [new RegExp(/<\/?o:[a-z]*>/gi), ''],
@@ -401,7 +401,8 @@
             tmp = this.document.createElement('div');
 
             // double br's aren't converted to p tags, but we want paragraphs.
-            tmp.innerHTML = '<p>' + text.split('<br><br>').join('</p><p>') + '</p>';
+            //tmp.innerHTML = '<p>' + text.split('<br><br>').join('</p><p>') + '</p>';
+            tmp.innerHTML = '<div>' + text.split('<br><br>').join('</div><div>') + '</div>';
 
             // block element cleanup
             elList = tmp.querySelectorAll('a,p,div,br');

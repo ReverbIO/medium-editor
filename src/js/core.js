@@ -73,7 +73,9 @@
             } else if (!this.options.disableDoubleReturn && MediumEditor.util.isKey(event, MediumEditor.util.keyCode.ENTER)) {
                 // hitting return in the begining of a header will create empty header elements before the current one
                 // instead, make "<p><br></p>" element, which are what happens if you hit return in an empty paragraph
-                p = this.options.ownerDocument.createElement('p');
+
+                // 12.4.16 @hunt changed this to be a div el instead of p
+                p = this.options.ownerDocument.createElement('div');
                 p.innerHTML = '<br>';
                 node.previousElementSibling.parentNode.insertBefore(p, node);
                 event.preventDefault();

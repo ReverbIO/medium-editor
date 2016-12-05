@@ -857,7 +857,7 @@ MediumEditor.extensions = {};
              * There are likely other bugs, these are just the ones we found so far.
              * For now, let's just use the same fallback we did for IE
              */
-            // [12.5.16] We want more fine grained control than this shit.
+            // [12.4.16] We want more fine grained control than this shit.
             // What is commented out below is basically why we forked the project.
             //if (!MediumEditor.util.isEdge && doc.queryCommandSupported('insertHTML')) {
             //    try {
@@ -878,6 +878,7 @@ MediumEditor.extensions = {};
                     range.selectNode(toReplace.appendChild(doc.createTextNode('')));
                 }
 
+                // [12.4.16] commented out
                 //else if ((toReplace.nodeType === 3 && range.startOffset === 0 && range.endOffset === toReplace.nodeValue.length) ||
                 //    (toReplace.nodeType !== 3 && toReplace.innerHTML === range.toString())) {
                 //     //Ensure range covers maximum amount of nodes as possible
@@ -5160,8 +5161,8 @@ MediumEditor.extensions = {};
 
             // Newlines between paragraphs in html have no syntactic value,
             // but then have a tendency to accidentally become additional paragraphs down the line
-            [new RegExp(/<\/p>\n+/gi), '</p>'],
-            [new RegExp(/\n+<p/gi), '<p'],
+            [new RegExp(/<\/p>\n+/gi), '</div>'], // was 'p' 12.4.16
+            [new RegExp(/\n+<p/gi), '<div'], // was 'p' 12.4.16
 
             // Microsoft Word makes these odd tags, like <o:p></o:p>
             [new RegExp(/<\/?o:[a-z]*>/gi), ''],
@@ -5317,6 +5318,7 @@ MediumEditor.extensions = {};
                 if (paragraphs.length > 1) {
                     for (p = 0; p < paragraphs.length; p += 1) {
                         if (paragraphs[p] !== '') {
+                            // [12.4.16] changed to p -> div
                             html += '<div>' + MediumEditor.util.htmlEntities(paragraphs[p]) + '</div>';
                         }
                     }
@@ -5507,7 +5509,8 @@ MediumEditor.extensions = {};
             tmp = this.document.createElement('div');
 
             // double br's aren't converted to p tags, but we want paragraphs.
-            tmp.innerHTML = '<p>' + text.split('<br><br>').join('</p><p>') + '</p>';
+            //tmp.innerHTML = '<p>' + text.split('<br><br>').join('</p><p>') + '</p>';
+            tmp.innerHTML = '<div>' + text.split('<br><br>').join('</div><div>') + '</div>';
 
             // block element cleanup
             elList = tmp.querySelectorAll('a,p,div,br');
@@ -6592,7 +6595,9 @@ MediumEditor.extensions = {};
             } else if (!this.options.disableDoubleReturn && MediumEditor.util.isKey(event, MediumEditor.util.keyCode.ENTER)) {
                 // hitting return in the begining of a header will create empty header elements before the current one
                 // instead, make "<p><br></p>" element, which are what happens if you hit return in an empty paragraph
-                p = this.options.ownerDocument.createElement('p');
+
+                // 12.4.16 @hunt changed this to be a div el instead of p
+                p = this.options.ownerDocument.createElement('div');
                 p.innerHTML = '<br>';
                 node.previousElementSibling.parentNode.insertBefore(p, node);
                 event.preventDefault();
