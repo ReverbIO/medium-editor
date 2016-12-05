@@ -53,8 +53,8 @@
 
             // Newlines between paragraphs in html have no syntactic value,
             // but then have a tendency to accidentally become additional paragraphs down the line
-            [new RegExp(/<\/p>\n+/gi), '</div>'], // was 'p' 12.4.16
-            [new RegExp(/\n+<p/gi), '<div'], // was 'p' 12.4.16
+            [new RegExp(/<\/div>\n+/gi), '</div>'], // was 'p' 12.4.16
+            [new RegExp(/\n+<div/gi), '<div'], // was 'p' 12.4.16
 
             // Microsoft Word makes these odd tags, like <o:p></o:p>
             [new RegExp(/<\/?o:[a-z]*>/gi), ''],

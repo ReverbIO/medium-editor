@@ -952,7 +952,7 @@ MediumEditor.extensions = {};
             // If the blockContainer is already the element type being passed in
             // treat it as 'undo' formatting and just convert it to a <p>
             if (blockContainer && tagName === blockContainer.nodeName.toLowerCase()) {
-                tagName = 'p';
+                tagName = 'div'; // 12.4.16 @hunt was p
             }
 
             // When IE we need to add <> to heading elements
@@ -970,7 +970,8 @@ MediumEditor.extensions = {};
                 }
 
                 // For Firefox and Edge, make sure there's a nested block element before calling outdent
-                if ((Util.isFF || Util.isEdge) && tagName === 'p') {
+                // was && tagName === 'p' @hunt 12.4.16
+                if ((Util.isFF || Util.isEdge) && tagName === 'div') {
                     childNodes = Array.prototype.slice.call(blockContainer.childNodes);
                     // If there are some non-block elements we need to wrap everything in a <p> before we outdent
                     if (childNodes.some(function (childNode) {
@@ -1078,7 +1079,8 @@ MediumEditor.extensions = {};
 
             var list = element.parentElement;
 
-            if (list.parentElement.nodeName.toLowerCase() === 'p') { // yes we need to clean up
+            // was 'p' @hunt 12.4.16
+            if (list.parentElement.nodeName.toLowerCase() === 'div') { // yes we need to clean up
                 Util.unwrap(list.parentElement, ownerDocument);
 
                 // move cursor at the end of the text inside the list
@@ -5161,8 +5163,8 @@ MediumEditor.extensions = {};
 
             // Newlines between paragraphs in html have no syntactic value,
             // but then have a tendency to accidentally become additional paragraphs down the line
-            [new RegExp(/<\/p>\n+/gi), '</div>'], // was 'p' 12.4.16
-            [new RegExp(/\n+<p/gi), '<div'], // was 'p' 12.4.16
+            [new RegExp(/<\/div>\n+/gi), '</div>'], // was 'p' 12.4.16
+            [new RegExp(/\n+<div/gi), '<div'], // was 'p' 12.4.16
 
             // Microsoft Word makes these odd tags, like <o:p></o:p>
             [new RegExp(/<\/?o:[a-z]*>/gi), ''],
@@ -6525,7 +6527,7 @@ MediumEditor.extensions = {};
 
     // Event handlers that shouldn't be exposed externally
 
-    function handleDisableExtraSpaces(event) {
+    function handleDisableExtraSpaces (event) {
         var node = MediumEditor.selection.getSelectionStart(this.options.ownerDocument),
             textContent = node.textContent,
             caretPositions = MediumEditor.selection.getCaretOffsets(node);
@@ -6535,7 +6537,7 @@ MediumEditor.extensions = {};
         }
     }
 
-    function handleDisabledEnterKeydown(event, element) {
+    function handleDisabledEnterKeydown (event, element) {
         if (this.options.disableReturn || element.getAttribute('data-disable-return')) {
             event.preventDefault();
         } else if (this.options.disableDoubleReturn || element.getAttribute('data-disable-double-return')) {
@@ -6544,13 +6546,13 @@ MediumEditor.extensions = {};
             // if current text selection is empty OR previous sibling text is empty OR it is not a list
             if ((node && node.textContent.trim() === '' && node.nodeName.toLowerCase() !== 'li') ||
                 (node.previousElementSibling && node.previousElementSibling.nodeName.toLowerCase() !== 'br' &&
-                 node.previousElementSibling.textContent.trim() === '')) {
+                node.previousElementSibling.textContent.trim() === '')) {
                 event.preventDefault();
             }
         }
     }
 
-    function handleTabKeydown(event) {
+    function handleTabKeydown (event) {
         // Override tab only for pre nodes
         var node = MediumEditor.selection.getSelectionStart(this.options.ownerDocument),
             tag = node && node.nodeName.toLowerCase();
@@ -6573,7 +6575,7 @@ MediumEditor.extensions = {};
         }
     }
 
-    function handleBlockDeleteKeydowns(event) {
+    function handleBlockDeleteKeydowns (event) {
         var p, node = MediumEditor.selection.getSelectionStart(this.options.ownerDocument),
             tagName = node.nodeName.toLowerCase(),
             isEmpty = /^(\s+|<br\/?>)?$/i,
@@ -6581,11 +6583,11 @@ MediumEditor.extensions = {};
 
         if (MediumEditor.util.isKey(event, [MediumEditor.util.keyCode.BACKSPACE, MediumEditor.util.keyCode.ENTER]) &&
                 // has a preceeding sibling
-                node.previousElementSibling &&
+            node.previousElementSibling &&
                 // in a header
-                isHeader.test(tagName) &&
+            isHeader.test(tagName) &&
                 // at the very end of the block
-                MediumEditor.selection.getCaretOffsets(node).left === 0) {
+            MediumEditor.selection.getCaretOffsets(node).left === 0) {
             if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.BACKSPACE) && isEmpty.test(node.previousElementSibling.innerHTML)) {
                 // backspacing the begining of a header into an empty previous element will
                 // change the tagName of the current node to prevent one
@@ -6603,15 +6605,15 @@ MediumEditor.extensions = {};
                 event.preventDefault();
             }
         } else if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.DELETE) &&
-                    // between two sibling elements
-                    node.nextElementSibling &&
-                    node.previousElementSibling &&
-                    // not in a header
-                    !isHeader.test(tagName) &&
-                    // in an empty tag
-                    isEmpty.test(node.innerHTML) &&
-                    // when the next tag *is* a header
-                    isHeader.test(node.nextElementSibling.nodeName.toLowerCase())) {
+                // between two sibling elements
+            node.nextElementSibling &&
+            node.previousElementSibling &&
+                // not in a header
+            !isHeader.test(tagName) &&
+                // in an empty tag
+            isEmpty.test(node.innerHTML) &&
+                // when the next tag *is* a header
+            isHeader.test(node.nextElementSibling.nodeName.toLowerCase())) {
             // hitting delete in an empty element preceding a header, ex:
             //  <p>[CURSOR]</p><h1>Header</h1>
             // Will cause the h1 to become a paragraph.
@@ -6624,16 +6626,16 @@ MediumEditor.extensions = {};
 
             event.preventDefault();
         } else if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.BACKSPACE) &&
-                tagName === 'li' &&
+            tagName === 'li' &&
                 // hitting backspace inside an empty li
-                isEmpty.test(node.innerHTML) &&
+            isEmpty.test(node.innerHTML) &&
                 // is first element (no preceeding siblings)
-                !node.previousElementSibling &&
+            !node.previousElementSibling &&
                 // parent also does not have a sibling
-                !node.parentElement.previousElementSibling &&
+            !node.parentElement.previousElementSibling &&
                 // is not the only li in a list
-                node.nextElementSibling &&
-                node.nextElementSibling.nodeName.toLowerCase() === 'li') {
+            node.nextElementSibling &&
+            node.nextElementSibling.nodeName.toLowerCase() === 'li') {
             // backspacing in an empty first list element in the first list (with more elements) ex:
             //  <ul><li>[CURSOR]</li><li>List Item 2</li></ul>
             // will remove the first <li> but add some extra element before (varies based on browser)
@@ -6643,7 +6645,7 @@ MediumEditor.extensions = {};
             // 3) move the cursor into the paragraph
 
             // create a paragraph before the list
-            p = this.options.ownerDocument.createElement('p');
+            p = this.options.ownerDocument.createElement('div'); // changed to div @hunt 12.4.16
             p.innerHTML = '<br>';
             node.parentElement.parentElement.insertBefore(p, node.parentElement);
 
@@ -6655,20 +6657,20 @@ MediumEditor.extensions = {};
 
             event.preventDefault();
         } else if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.BACKSPACE) &&
-                (MediumEditor.util.getClosestTag(node, 'blockquote') !== false) &&
-                MediumEditor.selection.getCaretOffsets(node).left === 0) {
+            (MediumEditor.util.getClosestTag(node, 'blockquote') !== false) &&
+            MediumEditor.selection.getCaretOffsets(node).left === 0) {
 
             // when cursor is at the begining of the element and the element is <blockquote>
             // then pressing backspace key should change the <blockquote> to a <p> tag
             event.preventDefault();
-            MediumEditor.util.execFormatBlock(this.options.ownerDocument, 'p');
+            MediumEditor.util.execFormatBlock(this.options.ownerDocument, 'div');   // changed to div @hunt 12.4.16
         } else if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.ENTER) &&
-                (MediumEditor.util.getClosestTag(node, 'blockquote') !== false) &&
-                MediumEditor.selection.getCaretOffsets(node).right === 0) {
+            (MediumEditor.util.getClosestTag(node, 'blockquote') !== false) &&
+            MediumEditor.selection.getCaretOffsets(node).right === 0) {
 
             // when cursor is at the end of <blockquote>,
             // then pressing enter key should create <p> tag, not <blockquote>
-            p = this.options.ownerDocument.createElement('p');
+            p = this.options.ownerDocument.createElement('div');  // changed to div @hunt 12.4.16
             p.innerHTML = '<br>';
             node.parentElement.insertBefore(p, node.nextSibling);
 
@@ -6677,10 +6679,9 @@ MediumEditor.extensions = {};
 
             event.preventDefault();
         } else if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.BACKSPACE) &&
-                MediumEditor.util.isMediumEditorElement(node.parentElement) &&
-                !node.previousElementSibling &&
-                node.nextElementSibling &&
-                isEmpty.test(node.innerHTML)) {
+            MediumEditor.util.isMediumEditorElement(node.parentElement) && !node.previousElementSibling &&
+            node.nextElementSibling &&
+            isEmpty.test(node.innerHTML)) {
 
             // when cursor is in the first element, it's empty and user presses backspace,
             // do delete action instead to get rid of the first element and move caret to 2nd
@@ -6690,7 +6691,7 @@ MediumEditor.extensions = {};
         }
     }
 
-    function handleKeyup(event) {
+    function handleKeyup (event) {
         var node = MediumEditor.selection.getSelectionStart(this.options.ownerDocument),
             tagName;
 
@@ -6700,28 +6701,27 @@ MediumEditor.extensions = {};
 
         // https://github.com/yabwe/medium-editor/issues/994
         // Firefox thrown an error when calling `formatBlock` on an empty editable blockContainer that's not a <div>
-        if (MediumEditor.util.isMediumEditorElement(node) && node.children.length === 0 && !MediumEditor.util.isBlockContainer(node)) {
-            this.options.ownerDocument.execCommand('formatBlock', false, 'p');
+        if (MediumEditor.util.isMediumEditorElement(node) &&
+            node.children.length === 0 && !MediumEditor.util.isBlockContainer(node)) {
+            this.options.ownerDocument.execCommand('formatBlock', false, 'div');    // changed to div from p @hunt 12.4.16
         }
 
         // https://github.com/yabwe/medium-editor/issues/834
         // https://github.com/yabwe/medium-editor/pull/382
         // Don't call format block if this is a block element (ie h1, figCaption, etc.)
-        if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.ENTER) &&
-            !MediumEditor.util.isListItem(node) &&
-            !MediumEditor.util.isBlockContainer(node)) {
+        if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.ENTER) && !MediumEditor.util.isListItem(node) && !MediumEditor.util.isBlockContainer(node)) {
 
             tagName = node.nodeName.toLowerCase();
             // For anchor tags, unlink
             if (tagName === 'a') {
                 this.options.ownerDocument.execCommand('unlink', false, null);
             } else if (!event.shiftKey && !event.ctrlKey) {
-                this.options.ownerDocument.execCommand('formatBlock', false, 'p');
+                this.options.ownerDocument.execCommand('formatBlock', false, 'div');  // changed to div from p @hunt 12.4.16
             }
         }
     }
 
-    function handleEditableInput(event, editable) {
+    function handleEditableInput (event, editable) {
         var textarea = editable.parentNode.querySelector('textarea[medium-editor-textarea-id="' + editable.getAttribute('medium-editor-textarea-id') + '"]');
         if (textarea) {
             textarea.value = editable.innerHTML.trim();
@@ -6730,7 +6730,7 @@ MediumEditor.extensions = {};
 
     // Internal helper methods which shouldn't be exposed externally
 
-    function addToEditors(win) {
+    function addToEditors (win) {
         if (!win._mediumEditors) {
             // To avoid breaking users who are assuming that the unique id on
             // medium-editor elements will start at 1, inserting a 'null' in the
@@ -6746,7 +6746,7 @@ MediumEditor.extensions = {};
         win._mediumEditors[this.id] = this;
     }
 
-    function removeFromEditors(win) {
+    function removeFromEditors (win) {
         if (!win._mediumEditors || !win._mediumEditors[this.id]) {
             return;
         }
@@ -6761,7 +6761,7 @@ MediumEditor.extensions = {};
         win._mediumEditors[this.id] = null;
     }
 
-    function createElementsArray(selector, doc, filterEditorElements) {
+    function createElementsArray (selector, doc, filterEditorElements) {
         var elements = [];
 
         if (!selector) {
@@ -6781,9 +6781,7 @@ MediumEditor.extensions = {};
             // selecotr might not be an array (ie NodeList) so use for loop
             for (var i = 0; i < selector.length; i++) {
                 var el = selector[i];
-                if (MediumEditor.util.isElement(el) &&
-                    !el.getAttribute('data-medium-editor-element') &&
-                    !el.getAttribute('medium-editor-textarea-id')) {
+                if (MediumEditor.util.isElement(el) && !el.getAttribute('data-medium-editor-element') && !el.getAttribute('medium-editor-textarea-id')) {
                     elements.push(el);
                 }
             }
@@ -6795,7 +6793,7 @@ MediumEditor.extensions = {};
         return elements;
     }
 
-    function cleanupTextareaElement(element) {
+    function cleanupTextareaElement (element) {
         var textarea = element.parentNode.querySelector('textarea[medium-editor-textarea-id="' + element.getAttribute('medium-editor-textarea-id') + '"]');
         if (textarea) {
             // Un-hide the textarea
@@ -6807,7 +6805,7 @@ MediumEditor.extensions = {};
         }
     }
 
-    function setExtensionDefaults(extension, defaults) {
+    function setExtensionDefaults (extension, defaults) {
         Object.keys(defaults).forEach(function (prop) {
             if (extension[prop] === undefined) {
                 extension[prop] = defaults[prop];
@@ -6816,7 +6814,7 @@ MediumEditor.extensions = {};
         return extension;
     }
 
-    function initExtension(extension, name, instance) {
+    function initExtension (extension, name, instance) {
         var extensionDefaults = {
             'window': instance.options.contentWindow,
             'document': instance.options.ownerDocument,
@@ -6838,7 +6836,7 @@ MediumEditor.extensions = {};
         return extension;
     }
 
-    function isToolbarEnabled() {
+    function isToolbarEnabled () {
         // If any of the elements don't have the toolbar disabled
         // We need a toolbar
         if (this.elements.every(function (element) {
@@ -6850,7 +6848,7 @@ MediumEditor.extensions = {};
         return this.options.toolbar !== false;
     }
 
-    function isAnchorPreviewEnabled() {
+    function isAnchorPreviewEnabled () {
         // If toolbar is disabled, don't add
         if (!isToolbarEnabled.call(this)) {
             return false;
@@ -6859,30 +6857,30 @@ MediumEditor.extensions = {};
         return this.options.anchorPreview !== false;
     }
 
-    function isPlaceholderEnabled() {
+    function isPlaceholderEnabled () {
         return this.options.placeholder !== false;
     }
 
-    function isAutoLinkEnabled() {
+    function isAutoLinkEnabled () {
         return this.options.autoLink !== false;
     }
 
-    function isImageDraggingEnabled() {
+    function isImageDraggingEnabled () {
         return this.options.imageDragging !== false;
     }
 
-    function isKeyboardCommandsEnabled() {
+    function isKeyboardCommandsEnabled () {
         return this.options.keyboardCommands !== false;
     }
 
-    function shouldUseFileDraggingExtension() {
+    function shouldUseFileDraggingExtension () {
         // Since the file-dragging extension replaces the image-dragging extension,
         // we need to check if the user passed an overrided image-dragging extension.
         // If they have, to avoid breaking users, we won't use file-dragging extension.
         return !this.options.extensions['imageDragging'];
     }
 
-    function createContentEditable(textarea) {
+    function createContentEditable (textarea) {
         var div = this.options.ownerDocument.createElement('div'),
             now = Date.now(),
             uniqueId = 'medium-editor-' + now,
@@ -6928,7 +6926,7 @@ MediumEditor.extensions = {};
         return div;
     }
 
-    function initElement(element, editorId) {
+    function initElement (element, editorId) {
         if (!element.getAttribute('data-medium-editor-element')) {
             if (element.nodeName.toLowerCase() === 'textarea') {
                 element = createContentEditable.call(this, element);
@@ -6978,7 +6976,7 @@ MediumEditor.extensions = {};
         return element;
     }
 
-    function attachHandlers() {
+    function attachHandlers () {
         // attach to tabs
         this.subscribe('editableKeydownTab', handleTabKeydown.bind(this));
 
@@ -7001,7 +6999,7 @@ MediumEditor.extensions = {};
         }
     }
 
-    function initExtensions() {
+    function initExtensions () {
 
         this.extensions = [];
 
@@ -7070,7 +7068,7 @@ MediumEditor.extensions = {};
         }
     }
 
-    function mergeOptions(defaults, options) {
+    function mergeOptions (defaults, options) {
         var deprecatedProperties = [
             ['allowMultiParagraphSelection', 'toolbar.allowMultiParagraphSelection']
         ];
@@ -7086,7 +7084,7 @@ MediumEditor.extensions = {};
         return MediumEditor.util.defaults({}, options, defaults);
     }
 
-    function execActionInternal(action, opts) {
+    function execActionInternal (action, opts) {
         /*jslint regexp: true*/
         var appendAction = /^append-(.+)$/gi,
             justifyAction = /justify([A-Za-z]*)$/g, /* Detecting if is justifyCenter|Right|Left */
@@ -7148,7 +7146,7 @@ MediumEditor.extensions = {};
      * Chrome may have removed <br> elements and instead wrapped lines in <div> elements
      * with a text-align property.  If so, we want to fix this
      */
-    function cleanupJustifyDivFragments(blockContainer) {
+    function cleanupJustifyDivFragments (blockContainer) {
         if (!blockContainer) {
             return;
         }
@@ -7622,7 +7620,7 @@ MediumEditor.extensions = {};
                                     0,
                                     parentElement.lastChild,
                                     parentElement.lastChild.nodeType === 3 ?
-                                    parentElement.lastChild.nodeValue.length : parentElement.lastChild.childNodes.length
+                                        parentElement.lastChild.nodeValue.length : parentElement.lastChild.childNodes.length
                                 );
                             } else {
                                 MediumEditor.selection.select(
@@ -7725,7 +7723,7 @@ MediumEditor.extensions = {};
 
         checkContentChanged: function (editable) {
             editable = editable || MediumEditor.selection.getSelectionElement(this.options.contentWindow);
-            this.events.updateInput(editable, { target: editable, currentTarget: editable });
+            this.events.updateInput(editable, {target: editable, currentTarget: editable});
         },
 
         resetContent: function (element) {
@@ -7763,7 +7761,7 @@ MediumEditor.extensions = {};
                 this.elements.push(element);
 
                 // Trigger event so extensions can know when an element has been added
-                this.trigger('addElement', { target: element, currentTarget: element }, element);
+                this.trigger('addElement', {target: element, currentTarget: element}, element);
             }, this);
         },
 
@@ -7787,7 +7785,7 @@ MediumEditor.extensions = {};
                         cleanupTextareaElement(element);
                     }
                     // Trigger event so extensions can clean-up elements that are being removed
-                    this.trigger('removeElement', { target: element, currentTarget: element }, element);
+                    this.trigger('removeElement', {target: element, currentTarget: element}, element);
                     return false;
                 }
                 return true;

@@ -546,7 +546,7 @@
             // If the blockContainer is already the element type being passed in
             // treat it as 'undo' formatting and just convert it to a <p>
             if (blockContainer && tagName === blockContainer.nodeName.toLowerCase()) {
-                tagName = 'p';
+                tagName = 'div'; // 12.4.16 @hunt was p
             }
 
             // When IE we need to add <> to heading elements
@@ -564,7 +564,8 @@
                 }
 
                 // For Firefox and Edge, make sure there's a nested block element before calling outdent
-                if ((Util.isFF || Util.isEdge) && tagName === 'p') {
+                // was && tagName === 'p' @hunt 12.4.16
+                if ((Util.isFF || Util.isEdge) && tagName === 'div') {
                     childNodes = Array.prototype.slice.call(blockContainer.childNodes);
                     // If there are some non-block elements we need to wrap everything in a <p> before we outdent
                     if (childNodes.some(function (childNode) {
@@ -672,7 +673,8 @@
 
             var list = element.parentElement;
 
-            if (list.parentElement.nodeName.toLowerCase() === 'p') { // yes we need to clean up
+            // was 'p' @hunt 12.4.16
+            if (list.parentElement.nodeName.toLowerCase() === 'div') { // yes we need to clean up
                 Util.unwrap(list.parentElement, ownerDocument);
 
                 // move cursor at the end of the text inside the list
