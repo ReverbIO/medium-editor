@@ -341,7 +341,8 @@ module.exports = function (grunt) {
     grunt.registerTask('test', ['jshint', 'jscs', 'concat', 'jasmine:suite', 'csslint']);
     grunt.registerTask('sauce', ['connect', 'saucelabs-jasmine']);
     //grunt.registerTask('js', ['jshint', 'jscs', 'concat', 'jasmine:suite', 'uglify']);
-    grunt.registerTask('js', ['jshint', 'concat', 'jasmine:suite', 'uglify']); // commented out jscs enforcements
+    // commented out jshint jscs & jasmine:suite enforcements 12.4.16
+    grunt.registerTask('js', ['concat', 'uglify']);
     grunt.registerTask('css', ['sass', 'autoprefixer', 'cssmin', 'csslint']);
     grunt.registerTask('default', ['js', 'css']);
 

@@ -409,7 +409,7 @@ MediumEditor.extensions = {};
 (function (window) {
     'use strict';
 
-    function copyInto(overwrite, dest) {
+    function copyInto (overwrite, dest) {
         var prop,
             sources = Array.prototype.slice.call(arguments, 2);
         dest = dest || {};
@@ -438,7 +438,8 @@ MediumEditor.extensions = {};
             testText = document.createTextNode(' ');
         testParent.appendChild(testText);
         nodeContainsWorksWithTextNodes = testParent.contains(testText);
-    } catch (exc) {}
+    } catch (exc) {
+    }
 
     var Util = {
 
@@ -524,12 +525,12 @@ MediumEditor.extensions = {};
 
         emptyElementNames: ['br', 'col', 'colgroup', 'hr', 'img', 'input', 'source', 'wbr'],
 
-        extend: function extend(/* dest, source1, source2, ...*/) {
+        extend: function extend (/* dest, source1, source2, ...*/) {
             var args = [true].concat(Array.prototype.slice.call(arguments));
             return copyInto.apply(this, args);
         },
 
-        defaults: function defaults(/*dest, source1, source2, ...*/) {
+        defaults: function defaults (/*dest, source1, source2, ...*/) {
             var args = [false].concat(Array.prototype.slice.call(arguments));
             return copyInto.apply(this, args);
         },
@@ -630,19 +631,19 @@ MediumEditor.extensions = {};
             var textIndexOfEndOfFarthestNode,
                 endSplitPoint;
             textIndexOfEndOfFarthestNode = currentTextIndex + (newNode || currentNode).nodeValue.length +
-                    (newNode ? currentNode.nodeValue.length : 0) -
-                    1;
+                (newNode ? currentNode.nodeValue.length : 0) -
+                1;
             endSplitPoint = (newNode || currentNode).nodeValue.length -
-                    (textIndexOfEndOfFarthestNode + 1 - matchEndIndex);
+                (textIndexOfEndOfFarthestNode + 1 - matchEndIndex);
             if (textIndexOfEndOfFarthestNode >= matchEndIndex &&
-                    currentTextIndex !== textIndexOfEndOfFarthestNode &&
-                    endSplitPoint !== 0) {
+                currentTextIndex !== textIndexOfEndOfFarthestNode &&
+                endSplitPoint !== 0) {
                 (newNode || currentNode).splitText(endSplitPoint);
             }
         },
 
         /*
-        * Take an element, and break up all of its text content into unique pieces such that:
+         * Take an element, and break up all of its text content into unique pieces such that:
          * 1) All text content of the elements are in separate blocks. No piece of text content should span
          *    across multiple blocks. This means no element return by this function should have
          *    any blocks as children.
@@ -704,7 +705,7 @@ MediumEditor.extensions = {};
         //  - A descendant of a sibling element
         //  - A sibling text node of an ancestor
         //  - A descendant of a sibling element of an ancestor
-        findAdjacentTextNodeWithContent: function findAdjacentTextNodeWithContent(rootNode, targetNode, ownerDocument) {
+        findAdjacentTextNodeWithContent: function findAdjacentTextNodeWithContent (rootNode, targetNode, ownerDocument) {
             var pastTarget = false,
                 nextNode,
                 nodeIterator = ownerDocument.createNodeIterator(rootNode, NodeFilter.SHOW_TEXT, null, false);
@@ -742,7 +743,7 @@ MediumEditor.extensions = {};
             return previousSibling;
         },
 
-        isDescendant: function isDescendant(parent, child, checkEquality) {
+        isDescendant: function isDescendant (parent, child, checkEquality) {
             if (!parent || !child) {
                 return false;
             }
@@ -767,7 +768,7 @@ MediumEditor.extensions = {};
         },
 
         // https://github.com/jashkenas/underscore
-        isElement: function isElement(obj) {
+        isElement: function isElement (obj) {
             return !!(obj && obj.nodeType === 1);
         },
 
@@ -856,13 +857,17 @@ MediumEditor.extensions = {};
              * There are likely other bugs, these are just the ones we found so far.
              * For now, let's just use the same fallback we did for IE
              */
-            if (!MediumEditor.util.isEdge && doc.queryCommandSupported('insertHTML')) {
-                try {
-                    return doc.execCommand.apply(doc, ecArgs);
-                } catch (ignore) {}
-            }
+
+            // [12.5.16] We want more fine grained control than this shit.
+            // What is commented out below is basically why we forked the project.
+            //if (!MediumEditor.util.isEdge && doc.queryCommandSupported('insertHTML')) {
+            //    try {
+            //        return doc.execCommand.apply(doc, ecArgs);
+            //    } catch (ignore) {}
+            //}
 
             selection = doc.getSelection();
+
             if (selection.rangeCount) {
                 range = selection.getRangeAt(0);
                 toReplace = range.commonAncestorContainer;
@@ -873,13 +878,12 @@ MediumEditor.extensions = {};
                 if (Util.isMediumEditorElement(toReplace) && !toReplace.firstChild) {
                     range.selectNode(toReplace.appendChild(doc.createTextNode('')));
                 } else if ((toReplace.nodeType === 3 && range.startOffset === 0 && range.endOffset === toReplace.nodeValue.length) ||
-                        (toReplace.nodeType !== 3 && toReplace.innerHTML === range.toString())) {
+                    (toReplace.nodeType !== 3 && toReplace.innerHTML === range.toString())) {
                     // Ensure range covers maximum amount of nodes as possible
                     // By moving up the DOM and selecting ancestors whose only child is the range
                     while (!Util.isMediumEditorElement(toReplace) &&
-                            toReplace.parentNode &&
-                            toReplace.parentNode.childNodes.length === 1 &&
-                            !Util.isMediumEditorElement(toReplace.parentNode)) {
+                    toReplace.parentNode &&
+                    toReplace.parentNode.childNodes.length === 1 && !Util.isMediumEditorElement(toReplace.parentNode)) {
                         toReplace = toReplace.parentNode;
                     }
                     range.selectNode(toReplace);
@@ -924,8 +928,8 @@ MediumEditor.extensions = {};
                     childNodes = Array.prototype.slice.call(blockContainer.childNodes);
                     // Check if the blockquote has a block element as a child (nested blocks)
                     if (childNodes.some(function (childNode) {
-                        return Util.isBlockContainer(childNode);
-                    })) {
+                            return Util.isBlockContainer(childNode);
+                        })) {
                         // FF handles blockquote differently on formatBlock
                         // allowing nesting, we need to use outdent
                         // https://developer.mozilla.org/en-US/docs/Rich-Text_Editing_in_Mozilla
@@ -965,8 +969,8 @@ MediumEditor.extensions = {};
                     childNodes = Array.prototype.slice.call(blockContainer.childNodes);
                     // If there are some non-block elements we need to wrap everything in a <p> before we outdent
                     if (childNodes.some(function (childNode) {
-                        return !Util.isBlockContainer(childNode);
-                    })) {
+                            return !Util.isBlockContainer(childNode);
+                        })) {
                         doc.execCommand('formatBlock', false, tagName);
                     }
                     return doc.execCommand('outdent', false, tagName);
@@ -1107,7 +1111,7 @@ MediumEditor.extensions = {};
          *  the <div>' would be returned as an element not appended to the DOM, and the <div>
          *  would remain in place where it was
          *
-        */
+         */
         splitOffDOMTree: function (rootNode, leafNode, splitLeft) {
             var splitOnNode = leafNode,
                 createdNode = null,
@@ -1466,7 +1470,7 @@ MediumEditor.extensions = {};
         },
 
         guid: function () {
-            function _s4() {
+            function _s4 () {
                 return Math
                     .floor((1 + Math.random()) * 0x10000)
                     .toString(16)
@@ -2485,15 +2489,17 @@ MediumEditor.extensions = {};
                 win = this.base.options.contentWindow,
                 doc = this.base.options.ownerDocument;
 
-            targets = MediumEditor.util.isElement(targets) || [win, doc].indexOf(targets) > -1 ? [targets] : targets;
+            if (targets !== null) {
+                targets = MediumEditor.util.isElement(targets) || [win, doc].indexOf(targets) > -1 ? [targets] : targets;
 
-            Array.prototype.forEach.call(targets, function (target) {
-                index = this.indexOfListener(target, event, listener, useCapture);
-                if (index !== -1) {
-                    e = this.events.splice(index, 1)[0];
-                    e[0].removeEventListener(e[1], e[2], e[3]);
-                }
-            }.bind(this));
+                Array.prototype.forEach.call(targets, function (target) {
+                    index = this.indexOfListener(target, event, listener, useCapture);
+                    if (index !== -1) {
+                        e = this.events.splice(index, 1)[0];
+                        e[0].removeEventListener(e[1], e[2], e[3]);
+                    }
+                }.bind(this));
+            }
         },
 
         indexOfListener: function (target, event, listener, useCapture) {
@@ -4305,7 +4311,8 @@ MediumEditor.extensions = {};
     var WHITESPACE_CHARS,
         KNOWN_TLDS_FRAGMENT,
         LINK_REGEXP_TEXT,
-        KNOWN_TLDS_REGEXP;
+        KNOWN_TLDS_REGEXP,
+        LINK_REGEXP;
 
     WHITESPACE_CHARS = [' ', '\t', '\n', '\r', '\u00A0', '\u2000', '\u2001', '\u2002', '\u2003',
                                     '\u2028', '\u2029'];
@@ -4326,6 +4333,8 @@ MediumEditor.extensions = {};
         ')|(([a-z0-9\\-]+\\.)?[a-z0-9\\-]+\\.(' + KNOWN_TLDS_FRAGMENT + '))';
 
     KNOWN_TLDS_REGEXP = new RegExp('^(' + KNOWN_TLDS_FRAGMENT + ')$', 'i');
+
+    LINK_REGEXP = new RegExp(LINK_REGEXP_TEXT, 'gi');
 
     function nodeIsNotInsideAnchorTag(node) {
         return !MediumEditor.util.getClosestTag(node, 'a');
@@ -4508,12 +4517,11 @@ MediumEditor.extensions = {};
         },
 
         findLinkableText: function (contenteditable) {
-            var linkRegExp = new RegExp(LINK_REGEXP_TEXT, 'gi'),
-                textContent = contenteditable.textContent,
+            var textContent = contenteditable.textContent,
                 match = null,
                 matches = [];
 
-            while ((match = linkRegExp.exec(textContent)) !== null) {
+            while ((match = LINK_REGEXP.exec(textContent)) !== null) {
                 var matchOk = true,
                     matchEnd = match.index + match[0].length;
                 // If the regexp detected something as a link that has text immediately preceding/following it, bail out.
@@ -5286,7 +5294,6 @@ MediumEditor.extensions = {};
 
             if (pastedHTML || pastedPlain) {
                 event.preventDefault();
-
                 this.doPaste(pastedHTML, pastedPlain, editable);
             }
         },
@@ -5315,6 +5322,7 @@ MediumEditor.extensions = {};
             } else {
                 html = MediumEditor.util.htmlEntities(pastedPlain);
             }
+
             MediumEditor.util.insertHTMLCommand(this.document, html);
         },
 
