@@ -52,28 +52,30 @@
     }
 
     function handleBlockDeleteKeydowns (event) {
-        var p, node = MediumEditor.selection.getSelectionStart(this.options.ownerDocument),
+        var p,
+            node = MediumEditor.selection.getSelectionStart(this.options.ownerDocument),
             tagName = node.nodeName.toLowerCase(),
             isEmpty = /^(\s+|<br\/?>)?$/i,
-            isHeader = /h\d/i;
+            isHeader = /h\d/i,
+            isMetaHeader = /h\d/i;
+
 
         if (MediumEditor.util.isKey(event, [MediumEditor.util.keyCode.BACKSPACE, MediumEditor.util.keyCode.ENTER]) &&
-                // has a preceeding sibling
-            node.previousElementSibling &&
-                // in a header
-            isHeader.test(tagName) &&
-                // at the very end of the block
-            MediumEditor.selection.getCaretOffsets(node).left === 0) {
-            if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.BACKSPACE) && isEmpty.test(node.previousElementSibling.innerHTML)) {
-                // backspacing the begining of a header into an empty previous element will
+            node.previousElementSibling &&                  // has a preceeding sibling
+            MediumEditor.selection.getCaretOffsets(node).left === 0) {  // at the very end of the block
+            //isHeader.test(tagName) &&                       // in a header
+
+            if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.BACKSPACE) &&
+                isEmpty.test(node.previousElementSibling.innerHTML)) {
+                // backspacing the beginning of a header into an empty previous element will
                 // change the tagName of the current node to prevent one
                 // instead delete previous node and cancel the event.
                 node.previousElementSibling.parentNode.removeChild(node.previousElementSibling);
                 event.preventDefault();
-            } else if (!this.options.disableDoubleReturn && MediumEditor.util.isKey(event, MediumEditor.util.keyCode.ENTER)) {
+            } else if (!this.options.disableDoubleReturn &&
+                MediumEditor.util.isKey(event, MediumEditor.util.keyCode.ENTER)) {
                 // hitting return in the begining of a header will create empty header elements before the current one
                 // instead, make "<p><br></p>" element, which are what happens if you hit return in an empty paragraph
-
                 // 12.4.16 @hunt changed this to be a div el instead of p
                 p = this.options.ownerDocument.createElement('div');
                 p.innerHTML = '<br>';
@@ -81,35 +83,23 @@
                 event.preventDefault();
             }
         } else if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.DELETE) &&
-                // between two sibling elements
-            node.nextElementSibling &&
-            node.previousElementSibling &&
-                // not in a header
-            !isHeader.test(tagName) &&
-                // in an empty tag
-            isEmpty.test(node.innerHTML) &&
-                // when the next tag *is* a header
-            isHeader.test(node.nextElementSibling.nodeName.toLowerCase())) {
+            node.nextElementSibling &&                      // between two sibling elements
+            node.previousElementSibling &&                  // between two sibling elements
+            !isHeader.test(tagName) &&                      // not in a header
+            isEmpty.test(node.innerHTML) &&                 // in an empty tag
+            isHeader.test(node.nextElementSibling.nodeName.toLowerCase())) {    // when the next tag *is* a header
             // hitting delete in an empty element preceding a header, ex:
             //  <p>[CURSOR]</p><h1>Header</h1>
             // Will cause the h1 to become a paragraph.
-            // Instead, delete the paragraph node and move the cursor to the begining of the h1
-
-            // remove node and move cursor to start of header
-            MediumEditor.selection.moveCursor(this.options.ownerDocument, node.nextElementSibling);
-
+            // Instead, delete the paragraph node and move the cursor to the beginning of the h1
+            MediumEditor.selection.moveCursor(this.options.ownerDocument, node.nextElementSibling); // remove node and move cursor to start of header
             node.previousElementSibling.parentNode.removeChild(node);
-
             event.preventDefault();
         } else if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.BACKSPACE) &&
-            tagName === 'li' &&
-                // hitting backspace inside an empty li
-            isEmpty.test(node.innerHTML) &&
-                // is first element (no preceeding siblings)
-            !node.previousElementSibling &&
-                // parent also does not have a sibling
-            !node.parentElement.previousElementSibling &&
-                // is not the only li in a list
+            tagName === 'li' &&                             // hitting backspace inside an empty li
+            isEmpty.test(node.innerHTML) &&                 // is first element (no preceeding siblings)
+            !node.previousElementSibling &&                 // parent also does not have a sibling
+            !node.parentElement.previousElementSibling &&   // is not the only li in a list
             node.nextElementSibling &&
             node.nextElementSibling.nodeName.toLowerCase() === 'li') {
             // backspacing in an empty first list element in the first list (with more elements) ex:
@@ -127,38 +117,31 @@
 
             // move the cursor into the new paragraph
             MediumEditor.selection.moveCursor(this.options.ownerDocument, p);
-
             // remove the list element
             node.parentElement.removeChild(node);
-
             event.preventDefault();
         } else if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.BACKSPACE) &&
             (MediumEditor.util.getClosestTag(node, 'blockquote') !== false) &&
             MediumEditor.selection.getCaretOffsets(node).left === 0) {
-
-            // when cursor is at the begining of the element and the element is <blockquote>
+            // when cursor is at the beginning of the element and the element is <blockquote>
             // then pressing backspace key should change the <blockquote> to a <p> tag
             event.preventDefault();
             MediumEditor.util.execFormatBlock(this.options.ownerDocument, 'div');   // changed to div @hunt 12.4.16
         } else if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.ENTER) &&
             (MediumEditor.util.getClosestTag(node, 'blockquote') !== false) &&
             MediumEditor.selection.getCaretOffsets(node).right === 0) {
-
             // when cursor is at the end of <blockquote>,
             // then pressing enter key should create <p> tag, not <blockquote>
             p = this.options.ownerDocument.createElement('div');  // changed to div @hunt 12.4.16
             p.innerHTML = '<br>';
             node.parentElement.insertBefore(p, node.nextSibling);
-
             // move the cursor into the new paragraph
             MediumEditor.selection.moveCursor(this.options.ownerDocument, p);
-
             event.preventDefault();
         } else if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.BACKSPACE) &&
             MediumEditor.util.isMediumEditorElement(node.parentElement) && !node.previousElementSibling &&
             node.nextElementSibling &&
             isEmpty.test(node.innerHTML)) {
-
             // when cursor is in the first element, it's empty and user presses backspace,
             // do delete action instead to get rid of the first element and move caret to 2nd
             event.preventDefault();
@@ -185,14 +168,17 @@
         // https://github.com/yabwe/medium-editor/issues/834
         // https://github.com/yabwe/medium-editor/pull/382
         // Don't call format block if this is a block element (ie h1, figCaption, etc.)
-        if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.ENTER) && !MediumEditor.util.isListItem(node) && !MediumEditor.util.isBlockContainer(node)) {
+        if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.ENTER) &&
+            !MediumEditor.util.isListItem(node) && !MediumEditor.util.isBlockContainer(node)) {
 
             tagName = node.nodeName.toLowerCase();
+
             // For anchor tags, unlink
             if (tagName === 'a') {
                 this.options.ownerDocument.execCommand('unlink', false, null);
             } else if (!event.shiftKey && !event.ctrlKey) {
-                this.options.ownerDocument.execCommand('formatBlock', false, 'div');  // changed to div from p @hunt 12.4.16
+                this.options.ownerDocument.execCommand('formatBlock', false, tagName);
+                //this.options.ownerDocument.execCommand('formatBlock', false, 'div');  // changed to tagName from p @hunt 12.4.16
             }
         }
     }

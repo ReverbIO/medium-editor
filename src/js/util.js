@@ -559,7 +559,7 @@
             // https://developer.mozilla.org/en-US/docs/Web/API/Document/execCommand#Commands
             if (blockContainer && blockContainer.nodeName.toLowerCase() === 'blockquote') {
                 // For IE, just use outdent
-                if (Util.isIE && tagName === '<p>') {
+                if (Util.isIE && tagName === '<div>') {
                     return doc.execCommand('outdent', false, tagName);
                 }
 

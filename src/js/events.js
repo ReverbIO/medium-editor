@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    function isElementDescendantOfExtension(extensions, element) {
+    function isElementDescendantOfExtension (extensions, element) {
         return extensions.some(function (extension) {
             if (typeof extension.getInteractionElements !== 'function') {
                 return false;
@@ -222,23 +222,23 @@
 
             // Helper method to call all listeners to execCommand
             var callListeners = function (args, result) {
-                if (doc.execCommand.listeners) {
-                    doc.execCommand.listeners.forEach(function (listener) {
-                        listener({
-                            command: args[0],
-                            value: args[2],
-                            args: args,
-                            result: result
+                    if (doc.execCommand.listeners) {
+                        doc.execCommand.listeners.forEach(function (listener) {
+                            listener({
+                                command: args[0],
+                                value: args[2],
+                                args: args,
+                                result: result
+                            });
                         });
-                    });
-                }
-            },
+                    }
+                },
 
-                // Create a wrapper method for execCommand which will:
-                // 1) Call document.execCommand with the correct arguments
-                // 2) Loop through any listeners and notify them that execCommand was called
-                //    passing extra info on the call
-                // 3) Return the result
+            // Create a wrapper method for execCommand which will:
+            // 1) Call document.execCommand with the correct arguments
+            // 2) Loop through any listeners and notify them that execCommand was called
+            //    passing extra info on the call
+            // 3) Return the result
                 wrapper = function () {
                     var result = doc.execCommand.orig.apply(this, arguments);
 
@@ -388,7 +388,7 @@
                 this.attachDOMEvent(element, name, handler.bind(this));
             }, this);
 
-            this.eventsCache.push({ 'name': name, 'handler': handler });
+            this.eventsCache.push({'name': name, 'handler': handler});
         },
 
         cleanupElement: function (element) {
@@ -403,7 +403,7 @@
 
         focusElement: function (element) {
             element.focus();
-            this.updateFocus(element, { target: element, type: 'focus' });
+            this.updateFocus(element, {target: element, type: 'focus'});
         },
 
         updateFocus: function (target, eventObj) {
@@ -416,7 +416,7 @@
                 eventObj.type === 'click' &&
                 this.lastMousedownTarget &&
                 (MediumEditor.util.isDescendant(hadFocus, this.lastMousedownTarget, true) ||
-                    isElementDescendantOfExtension(this.base.extensions, this.lastMousedownTarget))) {
+                isElementDescendantOfExtension(this.base.extensions, this.lastMousedownTarget))) {
                 toFocus = hadFocus;
             }
 
@@ -433,8 +433,7 @@
             }
 
             // Check if the target is external (not part of the editor, toolbar, or any other extension)
-            var externalEvent = !MediumEditor.util.isDescendant(hadFocus, target, true) &&
-                !isElementDescendantOfExtension(this.base.extensions, target);
+            var externalEvent = !MediumEditor.util.isDescendant(hadFocus, target, true) && !isElementDescendantOfExtension(this.base.extensions, target);
 
             if (toFocus !== hadFocus) {
                 // If element has focus, and focus is going outside of editor
@@ -494,7 +493,7 @@
 
                 // We know selectionchange fired within one of our contenteditables
                 if (currentTarget) {
-                    this.updateInput(currentTarget, { target: activeElement, currentTarget: currentTarget });
+                    this.updateInput(currentTarget, {target: activeElement, currentTarget: currentTarget});
                 }
             }
         },
@@ -505,7 +504,7 @@
             // attempt to trigger the 'editableInput' event
             var target = this.base.getFocusedElement();
             if (target) {
-                this.updateInput(target, { target: target, currentTarget: target });
+                this.updateInput(target, {target: target, currentTarget: target});
             }
         },
 
@@ -538,8 +537,9 @@
 
             // If we're doing manual detection of the editableInput event we need
             // to check for input changes during 'keypress'
+
             if (this.keypressUpdateInput) {
-                var eventObj = { target: event.target, currentTarget: event.currentTarget };
+                var eventObj = {target: event.target, currentTarget: event.currentTarget};
 
                 // In IE, we need to let the rest of the event stack complete before we detect
                 // changes to input, so using setTimeout here
@@ -577,7 +577,8 @@
                 return this.triggerCustomEvent('editableKeydownSpace', event, event.currentTarget);
             }
 
-            if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.ENTER) || (event.ctrlKey && MediumEditor.util.isKey(event, MediumEditor.util.keyCode.M))) {
+            if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.ENTER) ||
+                (event.ctrlKey && MediumEditor.util.isKey(event, MediumEditor.util.keyCode.M))) {
                 return this.triggerCustomEvent('editableKeydownEnter', event, event.currentTarget);
             }
 

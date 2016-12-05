@@ -108,7 +108,6 @@
             // If the placeholder should be hidden on focus and the
             // element has focus, don't show the placeholder
             var dontShow = this.hideOnClick && (element === this.base.getFocusedElement());
-
             // Editor's content has changed, check if the placeholder should be hidden
             this.updatePlaceholder(element, dontShow);
         },
