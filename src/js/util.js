@@ -443,7 +443,7 @@
             var selection, range, el, fragment, node, lastNode, toReplace,
                 res = false,
                 ecArgs = ['insertHTML', false, html];
-
+            
             /* Edge's implementation of insertHTML is just buggy right now:
              * - Doesn't allow leading white space at the beginning of an element
              * - Found a case when a <font size="2"> tag was inserted when calling alignCenter inside a blockquote

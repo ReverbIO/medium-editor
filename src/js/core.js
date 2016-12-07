@@ -59,7 +59,6 @@
             isHeader = /h\d/i,
             isMetaHeader = /h\d/i;
 
-
         if (MediumEditor.util.isKey(event, [MediumEditor.util.keyCode.BACKSPACE, MediumEditor.util.keyCode.ENTER]) &&
             node.previousElementSibling &&                  // has a preceeding sibling
             MediumEditor.selection.getCaretOffsets(node).left === 0) {  // at the very end of the block
@@ -147,6 +146,9 @@
             event.preventDefault();
             MediumEditor.selection.moveCursor(this.options.ownerDocument, node.nextSibling);
             node.parentElement.removeChild(node);
+        } else if (event.keyCode == 90 && (event.metaKey || event.ctrlKey) && !event.shiftKey) {
+            debugger;
+            event.preventDefault();
         }
     }
 
@@ -168,8 +170,7 @@
         // https://github.com/yabwe/medium-editor/issues/834
         // https://github.com/yabwe/medium-editor/pull/382
         // Don't call format block if this is a block element (ie h1, figCaption, etc.)
-        if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.ENTER) &&
-            !MediumEditor.util.isListItem(node) && !MediumEditor.util.isBlockContainer(node)) {
+        if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.ENTER) && !MediumEditor.util.isListItem(node) && !MediumEditor.util.isBlockContainer(node)) {
 
             tagName = node.nodeName.toLowerCase();
 
@@ -856,12 +857,12 @@
             return extension;
         },
 
-        stopSelectionUpdates: function () {
-            this.preventSelectionUpdates = true;
-        },
-
         startSelectionUpdates: function () {
             this.preventSelectionUpdates = false;
+        },
+
+        stopSelectionUpdates: function () {
+            this.preventSelectionUpdates = true;
         },
 
         checkSelection: function () {
@@ -997,7 +998,6 @@
             if (!selectionState) {
                 return;
             }
-
             var editableElement = this.elements[selectionState.editableElementIndex || 0];
             MediumEditor.selection.importSelection(selectionState, editableElement, this.options.ownerDocument, favorLaterSelectionAnchor);
         },

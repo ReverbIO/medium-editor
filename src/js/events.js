@@ -461,7 +461,7 @@
             if (!this.contentCache) {
                 return;
             }
-            // An event triggered which signifies that the user may have changed someting
+            // An event triggered which signifies that the user may have changed something
             // Look in our cache of input for the contenteditables to see if something changed
             var index = target.getAttribute('medium-editor-index'),
                 html = target.innerHTML;
@@ -570,7 +570,6 @@
         },
 
         handleKeydown: function (event) {
-
             this.triggerCustomEvent('editableKeydown', event, event.currentTarget);
 
             if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.SPACE)) {

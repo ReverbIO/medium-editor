@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    function filterOnlyParentElements(node) {
+    function filterOnlyParentElements (node) {
         if (MediumEditor.util.isBlockContainer(node)) {
             return NodeFilter.FILTER_ACCEPT;
         } else {
@@ -139,6 +139,7 @@
                 if (node.nodeType === 3 && !foundEnd) {
                     nextCharIndex = charIndex + node.length;
                     // Check if we're at or beyond the start of the selection we're importing
+
                     if (!foundStart && selectionState.start >= charIndex && selectionState.start <= nextCharIndex) {
                         // NOTE: We only want to allow a selection to start at the END of an element if
                         //  allowRangeToStartAtEndOfNode is true
@@ -222,9 +223,9 @@
                 return node.nodeName.toLowerCase() === 'a';
             };
             if (selectionState.start === selectionState.end &&
-                    range.startContainer.nodeType === 3 &&
-                    range.startOffset === range.startContainer.nodeValue.length &&
-                    MediumEditor.util.traverseUp(range.startContainer, nodeInsideAnchorTagFunction)) {
+                range.startContainer.nodeType === 3 &&
+                range.startOffset === range.startContainer.nodeValue.length &&
+                MediumEditor.util.traverseUp(range.startContainer, nodeInsideAnchorTagFunction)) {
                 var prevNode = range.startContainer,
                     currentNode = range.startContainer.parentNode;
                 while (currentNode !== null && currentNode.nodeName.toLowerCase() !== 'a') {
@@ -505,7 +506,7 @@
 
         // http://stackoverflow.com/questions/4176923/html-of-selected-text
         // by Tim Down
-        getSelectionHtml: function getSelectionHtml(doc) {
+        getSelectionHtml: function getSelectionHtml (doc) {
             var i,
                 html = '',
                 sel = doc.getSelection(),
@@ -528,7 +529,7 @@
          *  @param {Range} A Range representing cursor position. Will window.getSelection if none is passed.
          *  @return {Object} 'left' and 'right' attributes contain offsets from begining and end of Element
          */
-        getCaretOffsets: function getCaretOffsets(element, range) {
+        getCaretOffsets: function getCaretOffsets (element, range) {
             var preCaretRange, postCaretRange;
 
             if (!range) {

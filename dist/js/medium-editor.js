@@ -849,7 +849,7 @@ MediumEditor.extensions = {};
             var selection, range, el, fragment, node, lastNode, toReplace,
                 res = false,
                 ecArgs = ['insertHTML', false, html];
-
+            
             /* Edge's implementation of insertHTML is just buggy right now:
              * - Doesn't allow leading white space at the beginning of an element
              * - Found a case when a <font size="2"> tag was inserted when calling alignCenter inside a blockquote
@@ -1767,7 +1767,7 @@ MediumEditor.extensions = {};
 (function () {
     'use strict';
 
-    function filterOnlyParentElements(node) {
+    function filterOnlyParentElements (node) {
         if (MediumEditor.util.isBlockContainer(node)) {
             return NodeFilter.FILTER_ACCEPT;
         } else {
@@ -1905,6 +1905,7 @@ MediumEditor.extensions = {};
                 if (node.nodeType === 3 && !foundEnd) {
                     nextCharIndex = charIndex + node.length;
                     // Check if we're at or beyond the start of the selection we're importing
+
                     if (!foundStart && selectionState.start >= charIndex && selectionState.start <= nextCharIndex) {
                         // NOTE: We only want to allow a selection to start at the END of an element if
                         //  allowRangeToStartAtEndOfNode is true
@@ -1988,9 +1989,9 @@ MediumEditor.extensions = {};
                 return node.nodeName.toLowerCase() === 'a';
             };
             if (selectionState.start === selectionState.end &&
-                    range.startContainer.nodeType === 3 &&
-                    range.startOffset === range.startContainer.nodeValue.length &&
-                    MediumEditor.util.traverseUp(range.startContainer, nodeInsideAnchorTagFunction)) {
+                range.startContainer.nodeType === 3 &&
+                range.startOffset === range.startContainer.nodeValue.length &&
+                MediumEditor.util.traverseUp(range.startContainer, nodeInsideAnchorTagFunction)) {
                 var prevNode = range.startContainer,
                     currentNode = range.startContainer.parentNode;
                 while (currentNode !== null && currentNode.nodeName.toLowerCase() !== 'a') {
@@ -2271,7 +2272,7 @@ MediumEditor.extensions = {};
 
         // http://stackoverflow.com/questions/4176923/html-of-selected-text
         // by Tim Down
-        getSelectionHtml: function getSelectionHtml(doc) {
+        getSelectionHtml: function getSelectionHtml (doc) {
             var i,
                 html = '',
                 sel = doc.getSelection(),
@@ -2294,7 +2295,7 @@ MediumEditor.extensions = {};
          *  @param {Range} A Range representing cursor position. Will window.getSelection if none is passed.
          *  @return {Object} 'left' and 'right' attributes contain offsets from begining and end of Element
          */
-        getCaretOffsets: function getCaretOffsets(element, range) {
+        getCaretOffsets: function getCaretOffsets (element, range) {
             var preCaretRange, postCaretRange;
 
             if (!range) {
@@ -2905,7 +2906,7 @@ MediumEditor.extensions = {};
             if (!this.contentCache) {
                 return;
             }
-            // An event triggered which signifies that the user may have changed someting
+            // An event triggered which signifies that the user may have changed something
             // Look in our cache of input for the contenteditables to see if something changed
             var index = target.getAttribute('medium-editor-index'),
                 html = target.innerHTML;
@@ -3014,7 +3015,6 @@ MediumEditor.extensions = {};
         },
 
         handleKeydown: function (event) {
-
             this.triggerCustomEvent('editableKeydown', event, event.currentTarget);
 
             if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.SPACE)) {
@@ -6583,7 +6583,6 @@ MediumEditor.extensions = {};
             isHeader = /h\d/i,
             isMetaHeader = /h\d/i;
 
-
         if (MediumEditor.util.isKey(event, [MediumEditor.util.keyCode.BACKSPACE, MediumEditor.util.keyCode.ENTER]) &&
             node.previousElementSibling &&                  // has a preceeding sibling
             MediumEditor.selection.getCaretOffsets(node).left === 0) {  // at the very end of the block
@@ -6671,6 +6670,9 @@ MediumEditor.extensions = {};
             event.preventDefault();
             MediumEditor.selection.moveCursor(this.options.ownerDocument, node.nextSibling);
             node.parentElement.removeChild(node);
+        } else if (event.keyCode == 90 && (event.metaKey || event.ctrlKey) && !event.shiftKey) {
+            debugger;
+            event.preventDefault();
         }
     }
 
@@ -6692,8 +6694,7 @@ MediumEditor.extensions = {};
         // https://github.com/yabwe/medium-editor/issues/834
         // https://github.com/yabwe/medium-editor/pull/382
         // Don't call format block if this is a block element (ie h1, figCaption, etc.)
-        if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.ENTER) &&
-            !MediumEditor.util.isListItem(node) && !MediumEditor.util.isBlockContainer(node)) {
+        if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.ENTER) && !MediumEditor.util.isListItem(node) && !MediumEditor.util.isBlockContainer(node)) {
 
             tagName = node.nodeName.toLowerCase();
 
@@ -7380,12 +7381,12 @@ MediumEditor.extensions = {};
             return extension;
         },
 
-        stopSelectionUpdates: function () {
-            this.preventSelectionUpdates = true;
-        },
-
         startSelectionUpdates: function () {
             this.preventSelectionUpdates = false;
+        },
+
+        stopSelectionUpdates: function () {
+            this.preventSelectionUpdates = true;
         },
 
         checkSelection: function () {
@@ -7521,7 +7522,6 @@ MediumEditor.extensions = {};
             if (!selectionState) {
                 return;
             }
-
             var editableElement = this.elements[selectionState.editableElementIndex || 0];
             MediumEditor.selection.importSelection(selectionState, editableElement, this.options.ownerDocument, favorLaterSelectionAnchor);
         },
