@@ -146,9 +146,6 @@
             event.preventDefault();
             MediumEditor.selection.moveCursor(this.options.ownerDocument, node.nextSibling);
             node.parentElement.removeChild(node);
-        } else if (event.keyCode == 90 && (event.metaKey || event.ctrlKey) && !event.shiftKey) {
-            debugger;
-            event.preventDefault();
         }
     }
 
@@ -558,6 +555,7 @@
         // Actions starting with 'append-' should attempt to format a block of text ('formatBlock') using a specific
         // type of block element (ie append-blockquote, append-h1, append-pre, etc.)
         match = appendAction.exec(action);
+
         if (match) {
             return MediumEditor.util.execFormatBlock(this.options.ownerDocument, match[1]);
         }
@@ -685,6 +683,11 @@
             // Call initialization helpers
             initExtensions.call(this);
             attachHandlers.call(this);
+
+            if (this.options && this.options.ownerDocument) {
+                console.log('STYLE OWNER DOC WITH CSS', this.options.ownerDocument);
+                this.options.ownerDocument.execCommand('StyleWithCSS', false, true)
+            }
         },
 
         destroy: function () {
@@ -904,7 +907,9 @@
 
             // Actions starting with 'full-' should be applied to to the entire contents of the editable element
             // (ie full-bold, full-append-pre, etc.)
+            
             match = fullAction.exec(action);
+
             if (match) {
                 // Store the current selection to be restored after applying the action
                 this.saveSelection();
