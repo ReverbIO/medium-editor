@@ -440,10 +440,10 @@
 
         // http://stackoverflow.com/questions/6690752/insert-html-at-caret-in-a-contenteditable-div
         insertHTMLCommand: function (doc, html) {
-            var selection, range, el, fragment, node, lastNode, toReplace,
+            var selection, range, clonedRange, el, fragment, node, lastNode, toReplace,
                 res = false,
                 ecArgs = ['insertHTML', false, html];
-            
+
             /* Edge's implementation of insertHTML is just buggy right now:
              * - Doesn't allow leading white space at the beginning of an element
              * - Found a case when a <font size="2"> tag was inserted when calling alignCenter inside a blockquote
@@ -461,8 +461,25 @@
 
             selection = doc.getSelection();
 
-            if (selection.rangeCount) {
-                range = selection.getRangeAt(0);
+            range = MediumEditor.selection.getSelectionRange(doc);
+
+            if (range) {
+                if (range.endOffset == 0 && range.endContainer && range.endContainer.previousSibling) {
+                    console.log("End offset is 0");
+                    //clonedRange = range.cloneRange();
+                    if (range.endContainer.previousSibling.nodeType == 3) {
+                        console.log("Setting prev text node to", range.endContainer.previousSibling, range.endContainer.previousSibling.length);
+                        range.setEnd(range.endContainer.previousSibling, range.endContainer.previousSibling.length);
+                        //MediumEditor.selection.selectRange(doc, clonedRange);
+                        //range = MediumEditor.selection.getSelectionRange(doc);
+                    } else if (range.endContainer.previousSibling.nodeType == 1) {
+                        console.log("Setting prev text node to", range.endContainer.previousSibling, range.endContainer.previousSibling.childNodes.length);
+                        range.setEnd(range.endContainer.previousSibling, range.endContainer.previousSibling.childNodes.length);
+                        //MediumEditor.selection.selectRange(doc, clonedRange);
+                        //range = MediumEditor.selection.getSelectionRange(doc);
+                    }
+                }
+
                 toReplace = range.commonAncestorContainer;
 
                 // https://github.com/yabwe/medium-editor/issues/748

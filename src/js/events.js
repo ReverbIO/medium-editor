@@ -582,6 +582,7 @@
             }
 
             if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.TAB)) {
+                debugger;
                 return this.triggerCustomEvent('editableKeydownTab', event, event.currentTarget);
             }
 
