@@ -727,6 +727,37 @@ MediumEditor.extensions = {};
             return nextNode;
         },
 
+        // Find the start and end node in the DOM tree that has text
+        // Text that appears directly next to the current node can be:
+        //  - A sibling text node
+        //  - A descendant of a sibling element
+        //  - A sibling text node of an ancestor
+        //  - A descendant of a sibling element of an ancestor
+        findStartAndEndTextNodesWithContent: function findAdjacentTextNodeWithContent (rootNode, ownerDocument) {
+            var nextNode, startNode, endNode,
+                nodeIterator = ownerDocument.createNodeIterator(rootNode, NodeFilter.SHOW_TEXT, null, false);
+
+            // Use a native NodeIterator to iterate over all the text nodes that are descendants
+            // of the rootNode.  Once past the targetNode, choose the first non-empty text node
+            nextNode = nodeIterator.nextNode();
+            while (nextNode) {
+                if (nextNode.nodeType === 3 && nextNode.nodeValue && nextNode.nodeValue.trim().length > 0) {
+                    if (!startNode) {
+                        startNode = nextNode;
+                    }
+
+                    endNode = nextNode;
+                }
+
+                nextNode = nodeIterator.nextNode();
+            }
+
+            return {
+                start: startNode,
+                end: endNode
+            };
+        },
+
         // Find an element's previous sibling within a medium-editor element
         // If one doesn't exist, find the closest ancestor's previous sibling
         findPreviousSibling: function (node) {
@@ -3035,7 +3066,6 @@ MediumEditor.extensions = {};
             }
 
             if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.TAB)) {
-                debugger;
                 return this.triggerCustomEvent('editableKeydownTab', event, event.currentTarget);
             }
 
@@ -7477,6 +7507,21 @@ MediumEditor.extensions = {};
 
                 this.selectElement(currNode);
             }
+        },
+
+        selectAllTextNodes: function (node) {
+            var range = this.options.ownerDocument.createRange(),
+                textNodes = MediumEditor.util.findStartAndEndTextNodesWithContent(node, this.options.ownerDocument);
+
+            if (textNodes.start && textNodes.end) {
+                range.setStart(textNodes.start, 0);
+                range.setEnd(textNodes.end, textNodes.end.length);
+            } else {
+                range.setStart(node, 0);
+                range.collapse(true);
+            }
+
+            MediumEditor.selection.selectRange(this.options.ownerDocument, range);
         },
 
         selectElement: function (element) {

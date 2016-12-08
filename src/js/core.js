@@ -946,6 +946,21 @@
             }
         },
 
+        selectAllTextNodes: function (node) {
+            var range = this.options.ownerDocument.createRange(),
+                textNodes = MediumEditor.util.findStartAndEndTextNodesWithContent(node, this.options.ownerDocument);
+
+            if (textNodes.start && textNodes.end) {
+                range.setStart(textNodes.start, 0);
+                range.setEnd(textNodes.end, textNodes.end.length);
+            } else {
+                range.setStart(node, 0);
+                range.collapse(true);
+            }
+
+            MediumEditor.selection.selectRange(this.options.ownerDocument, range);
+        },
+
         selectElement: function (element) {
             MediumEditor.selection.selectNode(element, this.options.ownerDocument);
 
