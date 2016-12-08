@@ -459,24 +459,15 @@
             //    } catch (ignore) {}
             //}
 
-            selection = doc.getSelection();
-
             range = MediumEditor.selection.getSelectionRange(doc);
 
             if (range) {
                 if (range.endOffset == 0 && range.endContainer && range.endContainer.previousSibling) {
-                    console.log("End offset is 0");
                     //clonedRange = range.cloneRange();
                     if (range.endContainer.previousSibling.nodeType == 3) {
-                        console.log("Setting prev text node to", range.endContainer.previousSibling, range.endContainer.previousSibling.length);
                         range.setEnd(range.endContainer.previousSibling, range.endContainer.previousSibling.length);
-                        //MediumEditor.selection.selectRange(doc, clonedRange);
-                        //range = MediumEditor.selection.getSelectionRange(doc);
                     } else if (range.endContainer.previousSibling.nodeType == 1) {
-                        console.log("Setting prev text node to", range.endContainer.previousSibling, range.endContainer.previousSibling.childNodes.length);
                         range.setEnd(range.endContainer.previousSibling, range.endContainer.previousSibling.childNodes.length);
-                        //MediumEditor.selection.selectRange(doc, clonedRange);
-                        //range = MediumEditor.selection.getSelectionRange(doc);
                     }
                 }
 
