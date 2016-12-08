@@ -6620,11 +6620,12 @@ MediumEditor.extensions = {};
             tagName = node.nodeName.toLowerCase(),
             isEmpty = /^(\s+|<br\/?>)?$/i,
             isHeader = /h\d/i,
-            isMetaHeader = /h\d/i;
+            isMetaHeader = /h\d/i,
+            caretOffsets = MediumEditor.selection.getCaretOffsets(node);
 
         if (MediumEditor.util.isKey(event, [MediumEditor.util.keyCode.BACKSPACE, MediumEditor.util.keyCode.ENTER]) &&
-            node.previousElementSibling &&                  // has a preceeding sibling
-            MediumEditor.selection.getCaretOffsets(node).left === 0) {  // at the very end of the block
+            node.previousElementSibling &&      // has a preceeding sibling
+            caretOffsets.left === 0) {          // at the very end of the block
             //isHeader.test(tagName) &&                       // in a header
 
             if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.BACKSPACE) &&
@@ -6683,15 +6684,13 @@ MediumEditor.extensions = {};
             node.parentElement.removeChild(node);
             event.preventDefault();
         } else if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.BACKSPACE) &&
-            (MediumEditor.util.getClosestTag(node, 'blockquote') !== false) &&
-            MediumEditor.selection.getCaretOffsets(node).left === 0) {
+            (MediumEditor.util.getClosestTag(node, 'blockquote') !== false) && caretOffsets.left === 0) {
             // when cursor is at the beginning of the element and the element is <blockquote>
             // then pressing backspace key should change the <blockquote> to a <p> tag
             event.preventDefault();
             MediumEditor.util.execFormatBlock(this.options.ownerDocument, 'div');   // changed to div @hunt 12.4.16
         } else if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.ENTER) &&
-            (MediumEditor.util.getClosestTag(node, 'blockquote') !== false) &&
-            MediumEditor.selection.getCaretOffsets(node).right === 0) {
+            (MediumEditor.util.getClosestTag(node, 'blockquote') !== false) && caretOffsets.right === 0) {
             // when cursor is at the end of <blockquote>,
             // then pressing enter key should create <p> tag, not <blockquote>
             p = this.options.ownerDocument.createElement('div');  // changed to div @hunt 12.4.16
@@ -6709,10 +6708,38 @@ MediumEditor.extensions = {};
             event.preventDefault();
             MediumEditor.selection.moveCursor(this.options.ownerDocument, node.nextSibling);
             node.parentElement.removeChild(node);
-        } else if (event.keyCode == 90 && (event.metaKey || event.ctrlKey) && !event.shiftKey) {
-            debugger;
-            event.preventDefault();
         }
+
+        //else if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.BACKSPACE) && !node.previousElementSibling && !node.nextElementSibling &&
+        //    caretOffsets.left === 0) {
+        //
+        //    var parentElement = node.parentElement;
+        //    var appendTarget;
+        //
+        //    if (parentElement) {
+        //        appendTarget = parentElement.previousElementSibling;
+        //        appendTarget = appendTarget.lastChild;
+        //    }
+        //
+        //    console.log('APPENDING TO', appendTarget);
+        //    console.log('INNER TEXT', node.innerText);
+        //
+        //    if (appendTarget && node.innerText.length) {
+        //        var self = this;
+        //        var appendOffset = appendTarget.innerText.length;
+        //        var selectionRange = MediumEditor.selection.getSelectionRange();
+        //
+        //        appendTarget.append(node.innerText);
+        //        parentElement.removeChild(node);
+        //        parentElement.parentElement.removeChild(parentElement);
+        //
+        //        setTimeout(function () {
+        //            MediumEditor.selection.moveCursor(self.options.ownerDocument, appendTarget);
+        //        }, 100)
+        //    }
+        //
+        //    event.preventDefault();
+        //}
     }
 
     function handleKeyup (event) {
@@ -7121,6 +7148,7 @@ MediumEditor.extensions = {};
         // Actions starting with 'append-' should attempt to format a block of text ('formatBlock') using a specific
         // type of block element (ie append-blockquote, append-h1, append-pre, etc.)
         match = appendAction.exec(action);
+
         if (match) {
             return MediumEditor.util.execFormatBlock(this.options.ownerDocument, match[1]);
         }
@@ -7248,6 +7276,11 @@ MediumEditor.extensions = {};
             // Call initialization helpers
             initExtensions.call(this);
             attachHandlers.call(this);
+
+            //if (this.options && this.options.ownerDocument) {
+            //    console.log('STYLE OWNER DOC WITH CSS', this.options.ownerDocument);
+            //    this.options.ownerDocument.execCommand('StyleWithCSS', false, true)
+            //}
         },
 
         destroy: function () {
@@ -7467,7 +7500,9 @@ MediumEditor.extensions = {};
 
             // Actions starting with 'full-' should be applied to to the entire contents of the editable element
             // (ie full-bold, full-append-pre, etc.)
+
             match = fullAction.exec(action);
+
             if (match) {
                 // Store the current selection to be restored after applying the action
                 this.saveSelection();
