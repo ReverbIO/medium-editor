@@ -5948,7 +5948,7 @@ MediumEditor.extensions = {};
 
             this.attachEventHandlers();
             // alan 12/9/16 - stopping propagation on toolbar click so that text doesn't deselect
-            this.on(toolbar, 'mousedown', this.handleToolbarClick.bind(this));
+            this.on(toolbar, 'mousedown', this.handleToolbarMousedown.bind(this));
 
             return toolbar;
         },
@@ -6062,7 +6062,7 @@ MediumEditor.extensions = {};
             this.on(this.window, 'resize', this.handleWindowResize.bind(this));
         },
 
-        handleToolbarClick: function (event) {
+        handleToolbarMousedown: function (event) {
             event.preventDefault();
             event.stopPropagation();
             return false;
