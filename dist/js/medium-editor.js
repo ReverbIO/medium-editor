@@ -5938,6 +5938,7 @@ MediumEditor.extensions = {};
 
             toolbar.appendChild(this.createToolbarButtons());
 
+
             // Add any forms that extensions may have
             this.forEachExtension(function (extension) {
                 if (extension.hasForm) {
@@ -5946,6 +5947,8 @@ MediumEditor.extensions = {};
             });
 
             this.attachEventHandlers();
+            // alan 12/9/16 - stopping propagation on toolbar click so that text doesn't deselect
+            this.on(toolbar, 'mousedown', this.handleToolbarClick.bind(this));
 
             return toolbar;
         },
@@ -6057,6 +6060,12 @@ MediumEditor.extensions = {};
 
             // On resize, re-position the toolbar
             this.on(this.window, 'resize', this.handleWindowResize.bind(this));
+        },
+
+        handleToolbarClick: function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
         },
 
         handleWindowScroll: function () {
