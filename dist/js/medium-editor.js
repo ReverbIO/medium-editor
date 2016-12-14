@@ -7145,6 +7145,37 @@ MediumEditor.extensions = {};
         return MediumEditor.util.defaults({}, options, defaults);
     }
 
+    function isHTMLBold (node, accessor) {
+        var _isBold = false;
+        if (node && node[accessor].length) {
+            var innerBoldSplit = node[accessor].split('<b>');
+            if (innerBoldSplit.length > 1) {
+                _isBold = innerBoldSplit[0].length === 0;
+                innerBoldSplit = innerBoldSplit[1].split('</b>');
+
+                if (innerBoldSplit.length > 1) {
+                    _isBold = innerBoldSplit[1].length === 0;
+                } else {
+                    _isBold = false;
+                }
+            }
+        }
+        return _isBold;
+    }
+
+    function parseBoldIntoHTML (node, accessor) {
+        if (node && node[accessor]) {
+            node[accessor] = '<b>' + node[accessor] + '</b>';
+        }
+    }
+
+    function parseBoldOutOfHTML (node, accessor) {
+        if (node && node[accessor]) {
+            node[accessor] = node[accessor].slice(3);            // remove <b>
+            node[accessor] = node[accessor].slice(0, -4); // remove </b>
+        }
+    }
+
     function execActionInternal (action, opts) {
         /*jslint regexp: true*/
         var appendAction = /^append-(.+)$/gi,
@@ -7200,7 +7231,55 @@ MediumEditor.extensions = {};
             return result;
         }
 
+        // @hunter 12.12.16
+        //if (action === 'bold') {
+        //    var selectionStart = MediumEditor.selection.getSelectionStart(this.options.ownerDocument);
+        //    var selectedEls = MediumEditor.selection.getSelectedElements(this.options.ownerDocument);
+        //    var oldSelection = this.exportSelection();
+        //
+        //    var isSelectionBold = false;
+        //    var isAllBold = true;
+        //    console.log('SELECTED ELS', selectedEls);
+        //    console.log('SELECTION START', selectionStart);
+        //
+        //    if (selectedEls && selectedEls.length) {
+        //        for (var i = 0; i < selectedEls.length; i++) {
+        //            var selectedEl = selectedEls[i];
+        //
+        //            //if (selectedEl == selectionStart) debugger;
+        //            if (selectedEl != selectionStart) {
+        //                isSelectionBold = isHTMLBold(selectedEl, 'outerHTML');
+        //                if (isSelectionBold) {
+        //                    parseBoldOutOfHTML(selectedEl, 'outerHTML');
+        //                } else {
+        //                    isAllBold = false;
+        //                }
+        //            } else {
+        //                isAllBold = isHTMLBold(selectedEl, 'outerHTML');
+        //            }
+        //        }
+        //    }
+        //
+        //    if (isAllBold) {
+        //        if (MediumEditor.util.isMediumEditorElement(selectionStart.parentNode)) {       // block lvl el i.e. h2 el
+        //            parseBoldOutOfHTML(selectionStart, 'innerHTML');
+        //        } else {                                                                        // inline el i.e. span el
+        //            parseBoldOutOfHTML(selectionStart, 'outerHTML');
+        //        }
+        //    } else {
+        //        if (MediumEditor.util.isMediumEditorElement(selectionStart.parentNode)) {       // block lvl el i.e. h2 el
+        //            parseBoldIntoHTML(selectionStart, 'innerHTML');
+        //        } else {                                                                        // inline el i.e. span el
+        //            parseBoldIntoHTML(selectionStart, 'outerHTML');
+        //        }
+        //    }
+        //
+        //    this.importSelection(oldSelection);
+        //    return;
+        //}
+
         cmdValueArgument = opts && opts.value;
+
         return this.options.ownerDocument.execCommand(action, false, cmdValueArgument);
     }
 
